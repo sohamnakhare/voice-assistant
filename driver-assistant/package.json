@@ -4,10 +4,13 @@
   "private": true,
   "dependencies": {
     "@material-ui/core": "^1.2.0",
+    "artyom.js": "^1.0.6",
+    "gifffer": "^1.5.1",
     "jquery": "^3.3.1",
     "react": "^16.4.0",
     "react-audio-recorder": "^2.1.0",
     "react-dom": "^16.4.0",
+    "react-gif-player": "^0.4.1",
     "react-mic": "^9.2.0",
     "react-scripts": "1.1.4"
   },
