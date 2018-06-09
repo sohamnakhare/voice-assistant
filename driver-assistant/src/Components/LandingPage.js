@@ -5,9 +5,11 @@ import Grid from '@material-ui/core/Grid';
 import $ from 'jquery';
 import AssistantGif from "./AssistantGif.js";
 import Dialog from './Dialog.js';
-
+import UniversalInbox from './UniversalInbox'
 import SpeechHandler from '../SpeechHandler.js';
 import StoryTeller from '../StoryTeller.js';
+import Chatbox from './Chatbox.js'
+import SalesRep from './SalesRep.js'
 
 const speechHandler = new SpeechHandler();
 const storyTeller = new StoryTeller();
@@ -157,11 +159,14 @@ class GuttersGrid extends React.Component {
 
         return (
             <div>
-                <Grid container className={classes.root} spacing={16}>
+                <Grid container className={classes.root} spacing={8}>
                     <Grid item xs={12}>
-                        <div style={{ position: 'fixed', top: '22%', left: '-5%' }}>
+                        <UniversalInbox/>
+                        {/* <div style={{ position: 'fixed', top: '22%', left: '-5%' }}>
                             <AssistantGif setRef={(pause) => this.pauseGif = pause} />
-                        </div>
+                        </div> */}
+                        <SalesRep/>
+                        <Chatbox/>
                     </Grid>
                 </Grid>
                 <Dialog open={this.state.open} title={this.state.currentEpisodeName} />
