@@ -3,9 +3,8 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
+import initData from './initData.js';
 
-// import * as $ from 'jquery'
-// window.jQuery = window.$ = $
-
+initData();
 ReactDOM.render(<App />, document.getElementById('root'));
 registerServiceWorker();
