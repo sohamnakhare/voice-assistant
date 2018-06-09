@@ -2,17 +2,20 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+
 import $ from 'jquery';
 import AssistantGif from "./AssistantGif.js";
 import Dialog from './Dialog.js';
-
 import ConversationTracker from '../ConversationTracker.js';
 import SpeechHandler from '../SpeechHandler.js';
 import StoryTeller from '../StoryTeller.js';
+import Inbox from './Inbox/Inbox.js';
 
 const speechHandler = new SpeechHandler();
 const storyTeller = new StoryTeller();
-const conversationTracker = new ConversationTracker(); 
+const conversationTracker = new ConversationTracker();
 
 const styles = theme => ({
     root: {
@@ -39,15 +42,6 @@ class GuttersGrid extends React.Component {
     };
 
     componentDidMount() {
-        var values = [],
-        keys = Object.keys(localStorage),
-        i = keys.length;
-
-    while ( i-- ) {
-        values.push( {[keys[i]]: localStorage.getItem(keys[i])});
-    }
-
-    console.log(JSON.stringify(values));
         this.addCommands();
         this.buildStory();
         // storyTeller.startStory();
@@ -56,10 +50,22 @@ class GuttersGrid extends React.Component {
         });
     }
 
+    handleClick = event => {
+        this.setState({ anchorEl: event.currentTarget });
+    };
+
+    handleClose = () => {
+        this.setState({ anchorEl: null });
+    };
+
+    goToInbox = () => {
+        this.setState({ page: 'inbox', anchorEl: null });
+    }
+
     addCommands() {
         const self = this;
         speechHandler.addCommand("instructions", () => {
-            conversationTracker.storeMessage({sender: 'driver', message: 'instructions'});
+            conversationTracker.storeMessage({ sender: 'driver', message: 'instructions' });
             speechHandler.speak(localStorage.getItem('enable_tracking_instructions'), () => {
                 $('.gif_player').trigger('click');
             }, () => {
@@ -67,7 +73,7 @@ class GuttersGrid extends React.Component {
             });
         });
         speechHandler.addCommand("enable tracking for me", () => {
-            conversationTracker.storeMessage({sender: 'driver', message: 'enable tracking for me'});
+            conversationTracker.storeMessage({ sender: 'driver', message: 'enable tracking for me' });
             speechHandler.speak(localStorage.getItem('enable_tracking_done'), () => {
                 $('.gif_player').trigger('click');
             }, () => {
@@ -85,7 +91,7 @@ class GuttersGrid extends React.Component {
                     self.setState({ open: false, currentEpisodeName: '' }, () => {
                         const msg = localStorage.getItem('enable_tracking_reminder');
                         speechHandler.speak(msg, () => {
-                            conversationTracker.storeMessage({sender: 'bot', message:msg});
+                            conversationTracker.storeMessage({ sender: 'bot', message: msg });
                             $('.gif_player').trigger('click');
                         }, () => {
                             self.pauseGif();
@@ -106,24 +112,28 @@ class GuttersGrid extends React.Component {
                 setTimeout(() => {
                     self.setState({ open: false, currentEpisodeName: '' }, () => {
                         const msg = localStorage.getItem('confirm_load_pickup');
-                        conversationTracker.storeMessage({sender: 'bot', message:msg});
+                        conversationTracker.storeMessage({ sender: 'bot', message: msg });
                         speechHandler.speak(msg, () => {
                             $('.gif_player').trigger('click');
                             speechHandler.addCommand("yes", () => {
-                                conversationTracker.storeMessage({sender: 'driver', message: "yes"});
+                                conversationTracker.storeMessage({ sender: 'driver', message: "yes" });
                                 speechHandler.speak('We have noted down your response. Thank you', () => {
-                                    conversationTracker.storeMessage({sender: 'bot',
-                                        message: "We have noted down your response. Thank you"});
+                                    conversationTracker.storeMessage({
+                                        sender: 'bot',
+                                        message: "We have noted down your response. Thank you"
+                                    });
                                     $('.gif_player').trigger('click');
                                 }, () => {
                                     self.pauseGif();
                                 });
                             });
                             speechHandler.addCommand("no", () => {
-                                conversationTracker.storeMessage({sender: 'driver', message: "no"});
+                                conversationTracker.storeMessage({ sender: 'driver', message: "no" });
                                 speechHandler.speak('We have noted down your response. Thank you', () => {
-                                    conversationTracker.storeMessage({sender: 'bot',
-                                        message: "We have noted down your response. Thank you"});
+                                    conversationTracker.storeMessage({
+                                        sender: 'bot',
+                                        message: "We have noted down your response. Thank you"
+                                    });
                                     $('.gif_player').trigger('click');
                                 }, () => {
                                     self.pauseGif();
@@ -143,7 +153,7 @@ class GuttersGrid extends React.Component {
                     self.setState({ open: false, currentEpisodeName: '' }, () => {
                         const msg = localStorage.getItem('confirm_eta');
                         speechHandler.speak(msg, () => {
-                            conversationTracker.storeMessage({sender: 'bot', message:msg});
+                            conversationTracker.storeMessage({ sender: 'bot', message: msg });
                             $('.gif_player').trigger('click');
                         }, () => {
                             self.pauseGif();
@@ -162,7 +172,7 @@ class GuttersGrid extends React.Component {
                     self.setState({ open: false, currentEpisodeName: '' }, () => {
                         const msg = localStorage.getItem('confirm_delivery');
                         speechHandler.speak(msg, () => {
-                            conversationTracker.storeMessage({sender: 'bot', message:msg});
+                            conversationTracker.storeMessage({ sender: 'bot', message: msg });
                             $('.gif_player').trigger('click');
                         }, () => {
                             self.pauseGif();
@@ -181,14 +191,53 @@ class GuttersGrid extends React.Component {
 
     render() {
         const { classes } = this.props;
+        const { anchorEl } = this.state;
 
         return (
             <div>
-                <Grid container className={classes.root} spacing={16}>
+                <Grid container className={classes.root} spacing={8}>
                     <Grid item xs={12}>
-                        <div style={{ position: 'fixed', top: '22%', left: '-5%' }}>
-                            <AssistantGif setRef={(pause) => this.pauseGif = pause} />
+                        {
+                            this.state.page === 'inbox' ?
+                                <div style={{ float: 'left', padding: '15px' }}>
+                                    <i class="fa fa-3x fa-arrow-left"
+                                        onClick={()=>{
+                                            this.setState({page: null});
+                                        }}
+                                        aria-hidden="true"></i>
+                                </div> : null
+                        }
+
+                        <div style={{ float: 'right', padding: '15px' }}>
+                            <i className="fa fa-3x fa-bars" aria-hidden="true"
+                                aria-owns={anchorEl ? 'simple-menu' : null}
+                                aria-haspopup="true"
+                                onClick={this.handleClick}></i>
+                            <Menu
+                                id="simple-menu"
+                                anchorEl={anchorEl}
+                                open={Boolean(anchorEl)}
+                                onClose={this.handleClose}
+                            >
+                                <MenuItem onClick={this.handleClose}>Enable tracking</MenuItem>
+                                <MenuItem onClick={this.goToInbox}>Inbox</MenuItem>
+                            </Menu>
                         </div>
+                        <div style={{ clear: 'both' }}></div>
+                        {
+                            ((page) => {
+                                switch (page) {
+                                    case 'inbox':
+                                        return <Inbox />;
+                                    default:
+                                        return (
+                                            <div style={{ position: 'fixed', top: '22%', left: '-5%' }}>
+                                                <AssistantGif setRef={(pause) => this.pauseGif = pause} />
+                                            </div>
+                                        )
+                                }
+                            })(this.state.page)
+                        }
                     </Grid>
                 </Grid>
                 <Dialog open={this.state.open} title={this.state.currentEpisodeName} />

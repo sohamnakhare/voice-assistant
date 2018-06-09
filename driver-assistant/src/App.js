@@ -7,8 +7,8 @@ import LandingPage from './Components/LandingPage.js';
 class App extends Component {
   render() {
     return (
-      <div style={{height: '100vh', background: '#AFB42B'}}>
-        <LandingPage/>
+      <div style={{ height: '100vh', overflow: 'scroll', background: '#AFB42B' }}>
+        <LandingPage />
       </div>
     );
   }
